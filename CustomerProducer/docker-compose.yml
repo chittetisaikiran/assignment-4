@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+    #service 1: definition of mysql database
+    db:
+      image: bank-application:latest
+      container_name: bankproducer-db  
+      environment:
+        - MYSQL_ROOT_PASSWORD=root123
+        - MYSQL_DATABASE=final
+      ports:
+        - "3307:3307"
+      restart: always
+      
+ 
+    #service 2: definition of your spring-boot app 
+    ProducerBank:                        #it is just a name, which will be used only in this file.
+      image: bank-producer               #name of the image after dockerfile executes
+      container_name: bank-producer-app  #name of the container created from docker image
+      build:
+        context: .                          #docker file path (. means root directory)
+        dockerfile: Dockerfile             #docker file name
+      ports:
+        - "8084:8084"                       #docker containter port with your os port
+      restart: always
+        
+      depends_on:                           #define dependencies of this app
+        - db                                #dependency name (which is defined with this name 'db' in this file earlier)
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/final
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: root123
